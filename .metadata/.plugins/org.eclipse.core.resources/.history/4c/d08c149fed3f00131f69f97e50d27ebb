@@ -1,0 +1,23 @@
+package commons;
+
+import java.util.Comparator;
+import commons.dataClasses.Recommendation;
+
+public class CompareFanCount implements Comparator <Recommendation> {
+
+	@Override
+	public int compare(Recommendation recommendation1, Recommendation recommendation2) {
+		if (recommendation1.getFanCount() > recommendation2.getFanCount()){
+			return -1;		
+		}
+		else if (recommendation1.getFanCount() == recommendation2.getFanCount())
+		{
+			return 0;
+		}
+		
+		else {
+			return 1;
+		}
+	}
+	
+}

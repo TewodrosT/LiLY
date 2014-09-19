@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">TransportationLily</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name= "starting_point">From: </string>
+    <string name="starting_location">Enter starting point</string>
+    <string name= "destination_point">To: </string>
+    <string name="ending_location">Enter your destination</string>
+    <string name= "senior_name"> Name: </string>
+    <string name= "typein_name"> Enter your full name here</string>
+    <string name= "contact_info"> Phone Number</string>
+    <string name= "phone_number"> Enter your phone number here</string>
+    <string name = "button_askride"> Ask for ride</string>
+    <string name = "button_askride"> Offer ride</string>
+</resources>

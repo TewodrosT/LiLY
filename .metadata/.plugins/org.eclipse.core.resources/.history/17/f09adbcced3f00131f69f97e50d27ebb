@@ -1,0 +1,196 @@
+package commons;
+
+
+import gps.Gps;
+
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import player.Player;
+import commons.CompareFanCount;
+import commons.dataClasses.ConcertInfo;
+import commons.dataClasses.Destination;
+import commons.dataClasses.GeoPoint;
+import commons.dataClasses.Recommendation;
+import commons.interfaces.IConnector;
+import commons.interfaces.IGps;
+import commons.interfaces.IPlayer;
+import commons.interfaces.IRecommender;
+import dataConnectors.LastFmConnectionException;
+import dataConnectors.LastFmXmlConnector;
+
+
+
+
+public class Recommender implements IRecommender {
+	private static final String String = null;
+	public Recommender(IConnector connector) {
+	
+		this.connector = connector;
+	}
+	
+	public Recommender(){
+		this.connector = null;
+	}
+
+	private IConnector connector;
+	@Override
+	public IConnector getConnector() {
+
+		return this.connector;
+	}
+
+	@Override
+	public void setConnector(IConnector connector) {
+		this.connector = connector;
+
+	}
+
+	@Override
+	public List<Recommendation> getRecommendations() throws Exception {
+		//LastFmXmlConnector connect = new LastFmXmlConnector();
+		IConnector connector = this.getConnector();
+		String artist = this.getPlayer().getCurrentArtist();
+		
+		List<String> fanForArtist = connector.getTopFansForArtist(artist); 
+		Iterator<String> fanForArtistIterator = fanForArtist.iterator();
+		List<Recommendation> artistList = new ArrayList<Recommendation> ();
+		HashMap <String, Integer> topArtistForFanHash = new HashMap<String, Integer> ();
+		while (fanForArtistIterator.hasNext()){
+			String fan = fanForArtistIterator.next();
+			
+			List<String> topArtistForFan = connector.getTopArtistsByFan(fan);
+			
+			for (String artistName :topArtistForFan){
+				if (topArtistForFanHash.containsKey(artistName)){
+					topArtistForFanHash.put(artistName, topArtistForFanHash.get(artistName)+1);
+				}
+				else{
+					topArtistForFanHash.put(artistName, 1);
+				}
+			}
+			
+			Map<String,Integer> artistBySequence = new TreeMap <String, Integer>(topArtistForFanHash);
+		    for (Map.Entry<String, Integer> entry: artistBySequence.entrySet ()){
+		    	artistList.add(new Recommendation(entry.getKey(),entry.getValue()));
+		    	//System.out.println(entry.getKey() + " " + entry.getValue());
+		    }
+		    
+		}
+   Collections.sort(artistList, new  CompareFanCount());
+		
+		List<Recommendation> artistListTemp = new ArrayList<Recommendation>();
+		if (artistList.size() > 20) {
+			
+			Iterator<Recommendation> it = artistList.iterator();
+			int count = 1;
+			while (it.hasNext() && count <= 20) {
+				artistListTemp.add(it.next());
+				count++;
+			}
+			System.err.println("counter" + artistListTemp.size());
+			return artistListTemp;
+		}
+				
+		return artistListTemp;
+	}
+    //Task C
+	@Override
+	public List<Destination> getDestinationsForArtists(String artist) throws LastFmConnectionException {
+		
+		
+		LastFmXmlConnector connect = new LastFmXmlConnector();
+		List<Destination> destination = new ArrayList<Destination>();   //create a destination list
+		List<ConcertInfo> concertInfoList = connect.getConcertsForArtist(artist);  //Get concert info for an artist, and assignment
+		Iterator<ConcertInfo> concertInfoIterator = concertInfoList.iterator();  
+		GeoPoint userGeo = this.getGps().getCurrentPosition();  //Geopoint for user locations
+		String metricUnit = this.getGps().getDistanceUnits();
+		
+		while(concertInfoIterator.hasNext()) //checks for List against value
+		{
+			
+			ConcertInfo C = concertInfoIterator.next (); //iterators for all concerts in the list
+			Destination d = new Destination(C);      // list of destination is assigned
+			double distance = computeDistance(C.getPosition(), userGeo, metricUnit);  //method call for computing distance
+			d.setDistance(distance);				//assign computed distance value into list
+			d.setDistanceUnits(metricUnit);       
+			
+			destination.add(d);     //assign the computed distance and all destinations to destination list
+		}
+
+		return destination;
+	}
+	
+
+	@Override
+	public List<Destination> buildItineraryForArtists(List<String> artists) throws SQATException  {
+		throw new SQATException("You have to implement this");
+	}
+	
+	public  IPlayer getPlayer(){
+		return DeviceManager.getInstance().getPlayer();
+	}
+	
+	public  IGps getGps(){
+		return DeviceManager.getInstance().getGps();
+	}
+	
+	//Task B
+	public double computeDistance(GeoPoint currentLocation, GeoPoint destination, String metricUnit) {
+		double lattitudeCurrent = Double.parseDouble(currentLocation.getLatitude());
+		double longitudeCurrent= Double.parseDouble(currentLocation.getLongitude());
+		double lattitudeDestination = Double.parseDouble(destination.getLatitude());
+		double longitudeDestination = Double.parseDouble(destination.getLongitude());
+		double earthRadiusInMiles = 3958.75;
+		double earthRadiusInKm = 6371.01;
+	    double lattitudeDifference = Math.toRadians(lattitudeDestination-lattitudeCurrent);
+	    double longitudeDifference = Math.toRadians(longitudeDestination-longitudeCurrent);
+	    double b = Math.sin(lattitudeDifference/2) * Math.sin(lattitudeDifference/2)+
+	    		Math.cos(Math.toRadians(lattitudeCurrent))*Math.cos(Math.toRadians(lattitudeDestination))*
+	    				Math.sin(longitudeDifference/2) * Math.sin(longitudeDifference/2);
+	    double a=Math.sqrt(b);
+	    double c=Math.sqrt(1-b);
+	    double d = 2*Math.atan2(a,c);
+	    
+	    if ( metricUnit =="mi") //checks for miles
+	    {     
+	    	double distanceInMiles = earthRadiusInMiles*d;
+	    	double distance = Math.round(distanceInMiles*100)/100;
+	    	return distance;
+	    }
+	    else          //if not miles return in km
+	    {
+	    	double distanceInKm = earthRadiusInKm*d;
+	    	double distance = Math.round(distanceInKm*100)/100;
+	    	return distance;
+	    }
+		
+	
+	}
+	// Temporary main Function to get values for test
+	public static void main (String arg[]) throws Exception{
+		 String artist = "u2";
+		 Recommender r = new Recommender (new LastFmXmlConnector());
+		 IPlayer player = new Player(); 
+	     IGps gps = new Gps();  
+	     GeoPoint position = new GeoPoint("-14.2", "60.4"); //since we do not have a current user locations we set here
+	     gps.setCurrentPosition(position); //assign the dummy current location values
+	     gps.setDistanceUnits("KM");
+	     player.setCurrentArtist(artist);
+		//r.getDestinationsForArtists("U2");
+		List<Recommendation> recommendation = r.getRecommendations();
+		for (Recommendation d:recommendation){
+			System.out.println(d.getArtist() + " " + d.getFanCount());
+	
+		}
+		
+		
+	}
+
+}
