@@ -2,19 +2,21 @@ package com.example.transportationlily;
 
 import java.util.Calendar;
 
+
 //import android.support.v7.app.ActionBarActivity;
-import android.text.format.DateFormat;
+//import android.text.format.DateFormat;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 //import android.app.DialogFragment;
 import android.os.Bundle;
+import android.widget.Button;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.TimePicker;
-import android.app.TimePickerDialog;
+//import android.widget.TimePicker;
+//import android.app.TimePickerDialog;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 //import android.support.v4.app.FragmentManager;
@@ -36,37 +38,13 @@ public class MainActivity extends FragmentActivity {
 		name = (EditText) findViewById(R.id.name);
 		
 	}
+	
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
-	}
-
-	public static class TimePickerFragment extends DialogFragment implements
-			TimePickerDialog.OnTimeSetListener {
-
-		@Override
-		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			// Use the current time as the default values for the picker
-			final Calendar c = Calendar.getInstance();
-			int hour = c.get(Calendar.HOUR_OF_DAY);
-			int minute = c.get(Calendar.MINUTE);
-
-			// Create a new instance of TimePickerDialog and return it
-			return new TimePickerDialog(getActivity(), this, hour, minute,
-					DateFormat.is24HourFormat(getActivity()));
-		}
-
-		public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-			// Do something with the time chosen by the user
-		}
-	}
-
-	public void showTimePickerDialog(View v) {
-		DialogFragment newFragment = new TimePickerFragment();
-		newFragment.show(getSupportFragmentManager(), "timePicker");
 	}
 
 	@SuppressLint("NewApi")
@@ -97,25 +75,40 @@ public class MainActivity extends FragmentActivity {
 	    newFragment.show(getSupportFragmentManager(), "datePicker"); //(getSupportFragmentManager(), "datePicker");
 	}
 	
+	//Button offer = (Button) findViewById(R.id.offerList2);
+	//Button ask = (Button) findViewById(R.id.offerList);
+	
+
+	
 	public void askForRide (View V){
 		Intent intent = new Intent(this, AskRideActivity.class); 
-		intent.putExtra( "name", name.getText().toString());
+		intent.putExtra("name", name.getText().toString());
 		intent.putExtra("from", from.getText().toString());
 		intent.putExtra("to", to.getText().toString());
 		intent.putExtra("contact", phoneNumber.getText().toString());
 		//System.out.println(from.getText().toString());
 		startActivity(intent);
 	}
+	
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle action bar item clicks here. The action bar will
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
+		 switch (item.getItemId()) {
+	        case R.id.userProfile:
+	            //openSearch();
+	            return true;
+	        case R.id.action_settings:
+	        	return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+		/*int id = item.getItemId();
 		if (id == R.id.action_settings) {
 			return true;
 		}
-		return super.onOptionsItemSelected(item);
+		return super.onOptionsItemSelected(item);*/
 	}
 }

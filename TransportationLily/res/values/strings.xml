@@ -12,10 +12,12 @@
     <string name="typein_name"> Enter your full name here</string>
     <string name="contact_info"> Phone Number: </string>
     <string name="phone_number"> Enter your phone number here</string>
-    <string name="button_askride"> Ask for ride</string>
+    <string name="button_askride"> View Schedule</string>
     <string name="button_offerride"> Offer ride</string>
     <string name="pick_time"> Pick time </string>
     <string name="pick_date"> Pick date </string>
     <string name="title_activity_ask_ride">AskRideActivity</string>
+    <string name="title_activity_offer_ride">OfferRideActivity</string>
+    
 
 </resources>

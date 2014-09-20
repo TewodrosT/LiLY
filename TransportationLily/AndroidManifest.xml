@@ -6,7 +6,9 @@
 
     <uses-sdk
         android:minSdkVersion="8"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="19" 
+        />
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
     <application
         android:allowBackup="true"
@@ -23,9 +25,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AskRideActivity"
+            android:name="com.example.transportationlily.AskRideActivity"
             android:label="@string/title_activity_ask_ride" >
         </activity>
+        <activity
+            android:name="com.example.transportationlily.OfferRideActivity"
+            android:label="@string/title_activity_offer_ride" >
+        </activity>
+        
     </application>
 
 </manifest>
